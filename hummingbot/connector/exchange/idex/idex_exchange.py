@@ -561,8 +561,8 @@ class IdexExchange(ExchangeBase):
             async with session.post(auth_dict["url"], data=auth_dict["body"], headers=auth_dict["headers"]) as response:
                 if response.status != 200:
                     data = await response.json()
-                    raise IOError(f"Error posting data to {url}. HTTP status is {response.status}."
-                                  f"Data is: {data}")
+                    raise IOError(f"Error posting data to {url}. HTTP status is {response.status}. "
+                                  f'Data is: {data} The original params: auth_dict body  = {auth_dict["body"]}' )
                 data = await response.json()
                 return data
 
