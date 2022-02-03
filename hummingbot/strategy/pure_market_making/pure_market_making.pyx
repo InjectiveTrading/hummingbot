@@ -151,6 +151,8 @@ cdef class PureMarketMakingStrategy(StrategyBase):
 
         self.c_add_markets([market_info.market])
 
+        self._min_tick = Decimal( "0.00000001")
+
     def all_markets_ready(self):
         return all([market.ready for market in self._sb_markets])
 
@@ -786,7 +788,17 @@ cdef class PureMarketMakingStrategy(StrategyBase):
                     size = market.c_quantize_order_amount(self.trading_pair, size)
                     if size > 0:
                         sells.append(PriceSize(price, size))
-
+        
+        if len(buys) == 1 and len(sells) == 1:
+            if sells[0].price == buys[0].price:
+                self.logger().info(
+                    f'price modification: previous: buy= {buys[0].price} ; sell = {sells[0].price}'
+                )
+                sells[0].price += self._min_tick
+                buys[0].price += self._min_tick
+                self.logger().info(
+                    f'price modification: after: buy= {buys[0].price} ; sell = {sells[0].price}'
+                )
         return Proposal(buys, sells)
 
     cdef tuple c_get_adjusted_available_balance(self, list orders):
